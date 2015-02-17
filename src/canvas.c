@@ -57,4 +57,6 @@ static void s_layer_update_callback(Layer *layer, GContext *ctx) {
 
         graphics_draw_line(ctx, p0, p1);
     }
+
+    sort_draw(sort, ctx);
 }

@@ -8,18 +8,21 @@ static TextLayer *s_text_layer;
 static Canvas *s_canvas;
 static Sort *s_sort;
 
+#define STR_LEN           (64)
+static char s_str[STR_LEN];
+
 #define TIMER_TIMEOUT_MS  (10)
 static AppTimer *s_timer;
 
 static void s_timer_callback_babble(void *data);
 
 static void s_timer_start(void) {
-    text_layer_set_text(s_text_layer, "Sorting...");
     s_timer = app_timer_register(TIMER_TIMEOUT_MS, s_timer_callback_babble, NULL);
 }
 
 static void s_timer_stop(void) {
-    text_layer_set_text(s_text_layer, "Stop");
+    snprintf(s_str, STR_LEN, "Stop (turn:%d)", sort_num_turn(s_sort));
+    text_layer_set_text(s_text_layer, s_str);
     if (s_timer != NULL) {
         app_timer_cancel(s_timer);
         s_timer = NULL;
@@ -36,10 +39,12 @@ static void s_timer_callback_babble(void *data) {
     sort_next(s_sort, &is_end);
     if (is_end == true) {
         s_timer_stop();
-        text_layer_set_text(s_text_layer, "Done");
+        snprintf(s_str, STR_LEN, "Done (turn:%d)", sort_num_turn(s_sort));
     } else {
         s_timer_start();
+        snprintf(s_str, STR_LEN, "Sort (turn:%d)", sort_num_turn(s_sort));
     }
+    text_layer_set_text(s_text_layer, s_str);
     canvas_mark_dirty(s_canvas);
 }
 
@@ -53,15 +58,16 @@ static void s_select_click_handler(ClickRecognizerRef recognizer, void *context)
 }
 
 static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
-    text_layer_set_text(s_text_layer, "Init random");
     s_timer_stop();
+    snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
+    text_layer_set_text(s_text_layer, s_str);
     (void)sort_init(s_sort, SORT_ALGORITHM_BABBLE_INIT_PARAM_RANDOM);
     canvas_mark_dirty(s_canvas);
 }
 
 static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
-    text_layer_set_text(s_text_layer, "Init desc-order");
     s_timer_stop();
+    snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
     (void)sort_init(s_sort, SORT_ALGORITHM_BABBLE_INIT_PARAM_DESCORDER);
     canvas_mark_dirty(s_canvas);
 }
@@ -79,7 +85,7 @@ static void s_window_load(Window *window) {
     s_sort = sort_create((SortSettings){.num_element = window_frame.size.w / 2});
     (void)sort_set_algorithm(s_sort, &sort_algorithm_babble);
     
-    s_canvas = canvas_create(window_frame, s_sort);
+    s_canvas = canvas_create((GRect){.origin = {0, 20}, .size = {window_frame.size.w, window_frame.size.h - 20}}, s_sort);
     layer_add_child(window_layer, canvas_get_layer(s_canvas));
 
     s_text_layer = text_layer_create((GRect){.origin={0, 0}, .size={window_frame.size.w, 20}});

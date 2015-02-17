@@ -6,6 +6,7 @@ typedef struct sort {
     SortAlgorithm algorithm;
     void *ctx;
     uint16_t ctx_size;
+    uint16_t num_turn;
 } Sort;
 
 Sort *sort_create(const SortSettings settings) {
@@ -39,6 +40,14 @@ SortData *sort_get_data(const Sort *sort) {
         data = (SortData*)&sort->data;
     }
     return data;
+}
+
+uint16_t sort_num_element(Sort *sort) {
+    return sort->data.num_element;
+}
+
+uint16_t sort_num_turn(Sort *sort) {
+    return sort->num_turn;
 }
 
 bool sort_set_algorithm(Sort *sort, SortAlgorithm *algorithm) {
@@ -80,6 +89,7 @@ bool sort_init(Sort *sort, void *param) {
         ret = (*sort->algorithm.open)(sort->ctx, &sort->data, param);
         if (ret == true) {
             sort->data.is_init = true;
+            sort->num_turn = 0;
         }
     }
     return ret;
@@ -92,6 +102,14 @@ void sort_next(Sort *sort, bool *is_end) {
             if (*is_end == true) {
                 sort->data.is_init = false;
             }
+            sort->num_turn++;
         }
+    }
+}
+
+void sort_draw(Sort *sort, GContext *gctx) {
+    if ((sort != NULL)
+        && (gctx != NULL)) {
+        (*sort->algorithm.draw)(sort->ctx, &sort->data, gctx);
     }
 }

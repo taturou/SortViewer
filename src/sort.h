@@ -18,11 +18,15 @@ typedef struct sort_algorithm {
     bool (*open)(void *ctx, SortData *data, void *param);
     void (*close)(void *ctx, SortData *data);
     void (*next)(void *ctx, SortData *data, bool *is_end);
+    void (*draw)(void *ctx, SortData *data, GContext *gctx);
 } SortAlgorithm;
 
 Sort *sort_create(const SortSettings settings);
 void sort_destroy(Sort *sort);
 SortData *sort_get_data(const Sort *sort);
+uint16_t sort_num_element(Sort *sort);
+uint16_t sort_num_turn(Sort *sort);
 bool sort_set_algorithm(Sort *sort, SortAlgorithm *algorithm);
 bool sort_init(Sort *sort, void *param);
 void sort_next(Sort *sort, bool *is_end);
+void sort_draw(Sort *sort, GContext *gctx);
