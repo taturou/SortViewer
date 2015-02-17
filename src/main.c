@@ -94,6 +94,8 @@ static void s_window_load(Window *window) {
 }
 
 static void s_window_unload(Window *window) {
+    s_timer_stop();
+
     text_layer_destroy(s_text_layer);
     s_text_layer = NULL;
 
@@ -102,8 +104,6 @@ static void s_window_unload(Window *window) {
     
     sort_destroy(s_sort);
     s_sort = NULL;
-    
-    s_timer_stop();
 }
 
 static void s_init(void) {

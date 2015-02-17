@@ -30,6 +30,8 @@ void canvas_destroy(Canvas *canvas) {
         return;
     }
     layer_destroy(canvas->layer);
+    canvas->layer = NULL;
+    canvas->sort = NULL;
 }
 
 Layer *canvas_get_layer(const Canvas *canvas) {

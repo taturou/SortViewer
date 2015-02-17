@@ -29,6 +29,8 @@ void sort_destroy(Sort *sort) {
     if (sort != NULL) {
         (void)sort_set_algorithm(sort, NULL);
         free(sort->data.elements);
+        sort->data.elements = NULL;
+        sort->data.num_element = 0;
         free(sort);
     }
 }
