@@ -1,9 +1,11 @@
 #include <pebble.h>
+#include <menu.h>
 #include <canvas.h>
 #include <sort.h>
 #include <sort_babble.h>
 
 static Window *s_window;
+static Menu *s_menu;
 static TextLayer *s_text_layer;
 static Canvas *s_canvas;
 static Sort *s_sort;
@@ -13,6 +15,8 @@ static char s_str[STR_LEN];
 
 #define TIMER_TIMEOUT_MS  (10)
 static AppTimer *s_timer;
+
+#define DELAY_MENU        (500)
 
 static void s_timer_callback_babble(void *data);
 
@@ -57,23 +61,48 @@ static void s_select_click_handler(ClickRecognizerRef recognizer, void *context)
     canvas_mark_dirty(s_canvas);
 }
 
+static void s_menu_select_callback(AlgorithmKind kind) {
+    SortAlgorithm *algorithm = NULL;
+
+    switch (kind) {
+    case MSA_Babble:
+        algorithm = &sort_algorithm_babble;
+        break;
+    case MSA_Merge:
+        break;
+    default:
+        break;
+    }
+    if (algorithm != NULL) {
+        snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
+        sort_set_algorithm(s_sort, algorithm);
+        (void)sort_init(s_sort, SO_AscendingOrder);
+    }
+}
+
+static void s_select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
+    s_timer_stop();
+    menu_show(s_menu, s_menu_select_callback);
+}
+
 static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     s_timer_stop();
     snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
     text_layer_set_text(s_text_layer, s_str);
-    (void)sort_init(s_sort, SORT_ALGORITHM_BABBLE_INIT_PARAM_RANDOM);
+    (void)sort_init(s_sort, SO_Random);
     canvas_mark_dirty(s_canvas);
 }
 
 static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
     s_timer_stop();
     snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
-    (void)sort_init(s_sort, SORT_ALGORITHM_BABBLE_INIT_PARAM_DESCORDER);
+    (void)sort_init(s_sort, SO_DescendingOrder);
     canvas_mark_dirty(s_canvas);
 }
 
 static void s_click_config_provider(void *context) {
     window_single_click_subscribe(BUTTON_ID_SELECT, s_select_click_handler);
+    window_long_click_subscribe(BUTTON_ID_SELECT, DELAY_MENU, s_select_long_click_handler, NULL);
     window_single_click_subscribe(BUTTON_ID_UP, s_up_click_handler);
     window_single_click_subscribe(BUTTON_ID_DOWN, s_down_click_handler);
 }
@@ -82,8 +111,11 @@ static void s_window_load(Window *window) {
     Layer *window_layer = window_get_root_layer(window);
     GRect window_frame = layer_get_bounds(window_layer);
 
+    s_menu = menu_create();
+    
     s_sort = sort_create((SortSettings){.num_element = window_frame.size.w / 2});
     (void)sort_set_algorithm(s_sort, &sort_algorithm_babble);
+    (void)sort_init(s_sort, SO_AscendingOrder);
     
     s_canvas = canvas_create((GRect){.origin = {0, 20}, .size = {window_frame.size.w, window_frame.size.h - 20}}, s_sort);
     layer_add_child(window_layer, canvas_get_layer(s_canvas));
@@ -104,9 +136,13 @@ static void s_window_unload(Window *window) {
     
     sort_destroy(s_sort);
     s_sort = NULL;
+    
+    menu_destroy(s_menu);
+    s_menu = NULL;
 }
 
 static void s_init(void) {
+    s_menu = NULL;
     s_text_layer = NULL;
     s_canvas = NULL;
     s_sort = NULL;

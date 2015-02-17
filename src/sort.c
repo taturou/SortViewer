@@ -84,11 +84,42 @@ bool sort_set_algorithm(Sort *sort, SortAlgorithm *algorithm) {
     return ret;
 }
 
-bool sort_init(Sort *sort, void *param) {
+bool sort_init(Sort *sort, SortOrder order) {
     bool ret = false;
     
     if (sort != NULL) {
-        ret = (*sort->algorithm.open)(sort->ctx, &sort->data, param);
+        SortData *data = &sort->data;
+
+        switch (order) {
+        case SO_AscendingOrder:
+            for (int i = 1; i <= data->num_element; i++) {
+                data->elements[i] = i;
+            }
+            break;
+        case SO_DescendingOrder:
+            for (int i = 0; i < data->num_element; i++) {
+                data->elements[i] = data->num_element - i;
+            }
+            break;
+        case SO_Random:
+            srand(time(NULL));
+            memset(data->elements, 0, data->num_element);
+            for (int val = 1; val <= data->num_element; val++) {
+                uint16_t index = rand() % data->num_element;
+                while (data->elements[index] != 0) {
+                    index++;
+                    if (data->num_element <= index) {
+                        index = 0;
+                    }
+                }
+                data->elements[index] = val;
+            }
+            break;
+        default:
+            break;
+        }
+        
+        ret = (*sort->algorithm.open)(sort->ctx, &sort->data);
         if (ret == true) {
             sort->data.is_init = true;
             sort->num_turn = 0;
