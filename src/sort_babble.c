@@ -15,9 +15,6 @@ SortAlgorithm sort_algorithm_babble = {
     s_draw
 };
 
-int sort_algorithm_babble_init_param_descorder = 1;
-int sort_algorithm_babble_init_param_random = 2;
-    
 typedef struct sort_position {
     uint16_t in;
     uint16_t out;

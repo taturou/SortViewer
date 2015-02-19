@@ -14,7 +14,7 @@ Sort *sort_create(const SortSettings settings) {
     
     sort = calloc(sizeof(Sort), 1);
     if (sort != NULL) {
-        sort->data.num_element = settings.num_element;
+        sort->data.num_element = settings.num_element & 0xfffeU;
         sort->data.elements = calloc(sizeof(uint8_t), settings.num_element);
         sort->data.is_init = false;
         if (sort->data.elements == NULL) {
@@ -107,7 +107,7 @@ bool sort_init(Sort *sort, SortOrder order) {
             for (int val = 1; val <= data->num_element; val++) {
                 uint16_t index = rand() % data->num_element;
                 while (data->elements[index] != 0) {
-                    index++;
+                    index += rand() % data->num_element;
                     if (data->num_element <= index) {
                         index = 0;
                     }

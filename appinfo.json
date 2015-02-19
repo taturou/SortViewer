@@ -4,12 +4,12 @@
         ""
     ],
     "companyName": "taturou@gmail.com",
-    "longName": "sort_viewer",
+    "longName": "SortAlgorithmViewer",
     "projectType": "native",
     "resources": {
         "media": []
     },
-    "shortName": "sort_viewer",
+    "shortName": "SortViewer",
     "uuid": "0c6198f5-9d4d-4b87-9096-25857102ef6e",
     "versionCode": 1,
     "versionLabel": "1.0",

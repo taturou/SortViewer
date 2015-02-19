@@ -3,6 +3,7 @@
 #include <canvas.h>
 #include <sort.h>
 #include <sort_babble.h>
+#include <sort_merge.h>
 
 static Window *s_window;
 static Menu *s_menu;
@@ -13,7 +14,7 @@ static Sort *s_sort;
 #define STR_LEN           (64)
 static char s_str[STR_LEN];
 
-#define TIMER_TIMEOUT_MS  (10)
+#define TIMER_TIMEOUT_MS  (20)
 static AppTimer *s_timer;
 
 #define DELAY_MENU        (500)
@@ -69,15 +70,18 @@ static void s_menu_select_callback(AlgorithmKind kind) {
         algorithm = &sort_algorithm_babble;
         break;
     case MSA_Merge:
+        algorithm = &sort_algorithm_merge;
         break;
     default:
         break;
     }
     if (algorithm != NULL) {
         snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
-        sort_set_algorithm(s_sort, algorithm);
-        (void)sort_init(s_sort, SO_AscendingOrder);
+        (void)sort_set_algorithm(s_sort, NULL);
+        (void)sort_set_algorithm(s_sort, algorithm);
+        (void)sort_init(s_sort,  SO_DescendingOrder);
     }
+    canvas_mark_dirty(s_canvas);
 }
 
 static void s_select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -85,6 +89,7 @@ static void s_select_long_click_handler(ClickRecognizerRef recognizer, void *con
     menu_show(s_menu, s_menu_select_callback);
 }
 
+#if 0
 static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     s_timer_stop();
     snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
@@ -99,6 +104,28 @@ static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
     (void)sort_init(s_sort, SO_DescendingOrder);
     canvas_mark_dirty(s_canvas);
 }
+#else
+static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
+    s_timer_stop();
+    snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
+    text_layer_set_text(s_text_layer, s_str);
+    (void)sort_init(s_sort, SO_Random);
+    canvas_mark_dirty(s_canvas);
+}
+
+static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
+    bool is_end = true;
+
+    sort_next(s_sort, &is_end);
+    if (is_end == true) {
+        snprintf(s_str, STR_LEN, "Done (turn:%d)", sort_num_turn(s_sort));
+    } else {
+        snprintf(s_str, STR_LEN, "Sort (turn:%d)", sort_num_turn(s_sort));
+    }
+    text_layer_set_text(s_text_layer, s_str);
+    canvas_mark_dirty(s_canvas);
+}
+#endif
 
 static void s_click_config_provider(void *context) {
     window_single_click_subscribe(BUTTON_ID_SELECT, s_select_click_handler);
@@ -113,7 +140,7 @@ static void s_window_load(Window *window) {
 
     s_menu = menu_create();
     
-    s_sort = sort_create((SortSettings){.num_element = window_frame.size.w / 2});
+    s_sort = sort_create((SortSettings){.num_element = 64 /*window_frame.size.w / 2*/});
     (void)sort_set_algorithm(s_sort, &sort_algorithm_babble);
     (void)sort_init(s_sort, SO_AscendingOrder);
     
@@ -128,9 +155,6 @@ static void s_window_load(Window *window) {
 static void s_window_unload(Window *window) {
     s_timer_stop();
 
-    text_layer_destroy(s_text_layer);
-    s_text_layer = NULL;
-
     canvas_destroy(s_canvas);
     s_canvas = NULL;
     
@@ -139,6 +163,9 @@ static void s_window_unload(Window *window) {
     
     menu_destroy(s_menu);
     s_menu = NULL;
+
+    text_layer_destroy(s_text_layer);
+    s_text_layer = NULL;
 }
 
 static void s_init(void) {

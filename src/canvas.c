@@ -26,12 +26,9 @@ Canvas *canvas_create(GRect window_frame, Sort *sort) {
 }
 
 void canvas_destroy(Canvas *canvas) {
-    if (canvas == NULL) {
-        return;
+    if (canvas != NULL) {
+        layer_destroy(canvas->layer);
     }
-    layer_destroy(canvas->layer);
-    canvas->layer = NULL;
-    canvas->sort = NULL;
 }
 
 Layer *canvas_get_layer(const Canvas *canvas) {

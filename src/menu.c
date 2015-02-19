@@ -26,6 +26,7 @@ Menu *menu_create(void) {
 
 void menu_destroy(Menu *menu) {
     if (menu != NULL) {
+        menu_hide(menu);
         free(menu);
     }
 }
@@ -60,6 +61,7 @@ bool menu_hide(Menu *menu) {
         if (menu->window != NULL) {
             window_stack_pop(true);
             window_destroy(menu->window);
+            menu->window = NULL;
             ret = true;
         }
     }
