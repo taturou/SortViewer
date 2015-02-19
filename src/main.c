@@ -18,6 +18,7 @@ static char s_str[STR_LEN];
 static AppTimer *s_timer;
 
 #define DELAY_MENU        (500)
+#define DELAY_BUTTON_DOWN (50)
 
 static void s_timer_callback_babble(void *data);
 
@@ -26,9 +27,9 @@ static void s_timer_start(void) {
 }
 
 static void s_timer_stop(void) {
-    snprintf(s_str, STR_LEN, "Stop (turn:%d)", sort_num_turn(s_sort));
     text_layer_set_text(s_text_layer, s_str);
     if (s_timer != NULL) {
+        snprintf(s_str, STR_LEN, "Stop (turn:%d)", sort_num_turn(s_sort));
         app_timer_cancel(s_timer);
         s_timer = NULL;
     }
@@ -89,22 +90,6 @@ static void s_select_long_click_handler(ClickRecognizerRef recognizer, void *con
     menu_show(s_menu, s_menu_select_callback);
 }
 
-#if 0
-static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
-    s_timer_stop();
-    snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
-    text_layer_set_text(s_text_layer, s_str);
-    (void)sort_init(s_sort, SO_Random);
-    canvas_mark_dirty(s_canvas);
-}
-
-static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
-    s_timer_stop();
-    snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
-    (void)sort_init(s_sort, SO_DescendingOrder);
-    canvas_mark_dirty(s_canvas);
-}
-#else
 static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     s_timer_stop();
     snprintf(s_str, STR_LEN, "Init (num:%d)", sort_num_element(s_sort));
@@ -116,6 +101,7 @@ static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
 static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
     bool is_end = true;
 
+    s_timer_stop();
     sort_next(s_sort, &is_end);
     if (is_end == true) {
         snprintf(s_str, STR_LEN, "Done (turn:%d)", sort_num_turn(s_sort));
@@ -125,13 +111,12 @@ static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
     text_layer_set_text(s_text_layer, s_str);
     canvas_mark_dirty(s_canvas);
 }
-#endif
 
 static void s_click_config_provider(void *context) {
     window_single_click_subscribe(BUTTON_ID_SELECT, s_select_click_handler);
     window_long_click_subscribe(BUTTON_ID_SELECT, DELAY_MENU, s_select_long_click_handler, NULL);
     window_single_click_subscribe(BUTTON_ID_UP, s_up_click_handler);
-    window_single_click_subscribe(BUTTON_ID_DOWN, s_down_click_handler);
+    window_single_repeating_click_subscribe(BUTTON_ID_DOWN, DELAY_BUTTON_DOWN, s_down_click_handler);
 }
 
 static void s_window_load(Window *window) {
