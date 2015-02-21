@@ -4,6 +4,7 @@
 typedef struct sort {
     SortData data;
     SortAlgorithm algorithm;
+    bool is_algorithm_opened;
     void *ctx;
     uint16_t ctx_size;
     uint16_t num_turn;
@@ -17,6 +18,7 @@ Sort *sort_create(const SortSettings settings) {
         sort->data.num_element = settings.num_element & 0xfffeU;
         sort->data.elements = calloc(sizeof(uint8_t), settings.num_element);
         sort->data.is_init = false;
+        sort->is_algorithm_opened = false;
         if (sort->data.elements == NULL) {
             free(sort);
             sort = NULL;
@@ -56,6 +58,7 @@ bool sort_set_algorithm(Sort *sort, SortAlgorithm *algorithm) {
     bool ret = false;
 
     if (sort != NULL) {
+        // install
         if (algorithm != NULL) {
             if (sort->ctx == NULL) {
                 memcpy(&sort->algorithm, algorithm, sizeof(SortAlgorithm));
@@ -64,15 +67,20 @@ bool sort_set_algorithm(Sort *sort, SortAlgorithm *algorithm) {
                     sort->ctx = calloc(ctx_size, 1);
                     if (sort->ctx != NULL) {
                         sort->ctx_size = ctx_size;
+                        sort->is_algorithm_opened = false;
                         ret = true;
                     }
                 } else {
                     /* error: do nothing */
                 }
             }
+        // uninstall
         } else {
             if (sort->ctx != NULL) {
-                (*sort->algorithm.close)(sort->ctx, &sort->data);
+                if (sort->is_algorithm_opened == true) {
+                    (*sort->algorithm.close)(sort->ctx, &sort->data);
+                    sort->is_algorithm_opened = false;
+                }
                 free(sort->ctx);
                 sort->ctx = NULL;
                 sort->ctx_size = 0;
@@ -82,6 +90,17 @@ bool sort_set_algorithm(Sort *sort, SortAlgorithm *algorithm) {
         }
     }
     return ret;
+}
+
+char *sort_get_algorithm_name(Sort *sort) {
+    static char *name = "";
+
+    if (sort != NULL) {
+        if (sort->ctx != NULL) {
+            name = (*sort->algorithm.get_name)();
+        }
+    }
+    return name;
 }
 
 bool sort_init(Sort *sort, SortOrder order) {
@@ -119,8 +138,13 @@ bool sort_init(Sort *sort, SortOrder order) {
             break;
         }
         
+        if (sort->is_algorithm_opened == true) {
+            (*sort->algorithm.close)(sort->ctx, &sort->data);
+            sort->is_algorithm_opened = false;
+        }
         ret = (*sort->algorithm.open)(sort->ctx, &sort->data);
         if (ret == true) {
+            sort->is_algorithm_opened = true;
             sort->data.is_init = true;
             sort->num_turn = 0;
         }

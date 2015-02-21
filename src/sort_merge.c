@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "sort_merge.h"
 
+static char *s_get_name(void);
 static uint16_t s_get_ctx_size(void);
 static bool s_open(void *ctx, SortData *data);
 static void s_close(void *ctx, SortData *data);
@@ -8,6 +9,7 @@ static void s_next(void *ctx, SortData *data, bool *is_end);
 static void s_draw(void *ctx, SortData *data, GContext *gctx);
 
 SortAlgorithm sort_algorithm_merge = {
+    s_get_name,
     s_get_ctx_size,
     s_open,
     s_close,
@@ -27,6 +29,11 @@ typedef struct sort_position {
     uint16_t max_r_index;
     uint16_t insert_index;
 } SortPosition;
+
+static char *s_get_name(void) {
+    static char *name = "Merge";
+    return name;
+}
 
 static uint16_t s_get_ctx_size(void) {
     return sizeof(SortPosition);

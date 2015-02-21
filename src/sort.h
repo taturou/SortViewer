@@ -22,6 +22,7 @@ typedef enum sort_order {
 #define MAX_SORTORDER    ((int)SO_Random + 1)
 
 typedef struct sort_algorithm {
+    char* (*get_name)(void);
     uint16_t (*get_ctx_size)(void);
     bool (*open)(void *ctx, SortData *data);
     void (*close)(void *ctx, SortData *data);
@@ -35,6 +36,7 @@ SortData *sort_get_data(const Sort *sort);
 uint16_t sort_num_element(Sort *sort);
 uint16_t sort_num_turn(Sort *sort);
 bool sort_set_algorithm(Sort *sort, SortAlgorithm *algorithm);
+char *sort_get_algorithm_name(Sort *sort);
 bool sort_init(Sort *sort, SortOrder order);
 void sort_next(Sort *sort, bool *is_end);
 void sort_draw(Sort *sort, GContext *gctx);

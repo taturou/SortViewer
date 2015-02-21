@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "sort_babble.h"
 
+static char *s_get_name(void);
 static uint16_t s_get_ctx_size(void);
 static bool s_open(void *ctx, SortData *data);
 static void s_close(void *ctx, SortData *data);
@@ -8,6 +9,7 @@ static void s_next(void *ctx, SortData *data, bool *is_end);
 static void s_draw(void *ctx, SortData *data, GContext *gctx);
 
 SortAlgorithm sort_algorithm_babble = {
+    s_get_name,
     s_get_ctx_size,
     s_open,
     s_close,
@@ -19,6 +21,11 @@ typedef struct sort_position {
     uint16_t in;
     uint16_t out;
 } SortPosition;
+
+static char *s_get_name(void) {
+    static char *name = "Babble";
+    return name;
+}
 
 static uint16_t s_get_ctx_size(void) {
     return sizeof(SortPosition);
