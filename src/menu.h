@@ -6,10 +6,11 @@ typedef struct menu Menu;
 typedef enum algorithm_kind {
     MSA_Babble = 0,
     MSA_Merge,
-    MSA_Quick
+    MSA_Quick,
+    MSA_Bucket
     // You have to modify 'MAX_ALGORITHM_KIND' value.
 } AlgorithmKind;
-#define MAX_ALGORITHM_KIND  ((int)MSA_Quick + 1)
+#define MAX_ALGORITHM_KIND  ((int)MSA_Bucket + 1)
 
 typedef void (*MenuSelectCallback)(AlgorithmKind kind);
 

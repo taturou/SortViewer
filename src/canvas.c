@@ -13,11 +13,12 @@ Canvas *canvas_create(GRect window_frame, Sort *sort) {
     Canvas *canvas = NULL;
 
     if (sort != NULL) {
-        Layer *layer = layer_create_with_data(window_frame, sizeof(Canvas));
+        GRect frame = (GRect){.origin = {0, 20}, .size = {window_frame.size.w, window_frame.size.h - 20}};
+        Layer *layer = layer_create_with_data(frame, sizeof(Canvas));
         if (layer != NULL) {
             canvas = (Canvas*)layer_get_data(layer);
             canvas->layer = layer;
-            canvas->window_frame = window_frame;
+            canvas->window_frame = frame;
             canvas->sort = sort;
             layer_set_update_proc(layer, s_layer_update_callback);
         }

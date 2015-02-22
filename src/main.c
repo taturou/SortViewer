@@ -5,6 +5,7 @@
 #include <sort_babble.h>
 #include <sort_merge.h>
 #include <sort_quick.h>
+#include <sort_bucket.h>
 
 static Window *s_window;
 static Menu *s_menu;
@@ -77,6 +78,9 @@ static void s_menu_select_callback(AlgorithmKind kind) {
     case MSA_Quick:
         algorithm = &sort_algorithm_quick;
         break;
+    case MSA_Bucket:
+        algorithm = &sort_algorithm_bucket;
+        break;
     default:
         break;
     }
@@ -133,7 +137,7 @@ static void s_window_load(Window *window) {
     (void)sort_set_algorithm(s_sort, &sort_algorithm_babble);
     (void)sort_init(s_sort, SO_AscendingOrder);
     
-    s_canvas = canvas_create((GRect){.origin = {0, 20}, .size = {window_frame.size.w, window_frame.size.h - 20}}, s_sort);
+    s_canvas = canvas_create(window_frame, s_sort);
     layer_add_child(window_layer, canvas_get_layer(s_canvas));
 
     s_text_layer = text_layer_create((GRect){.origin={0, 0}, .size={window_frame.size.w, 20}});
