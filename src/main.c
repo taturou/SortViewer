@@ -30,7 +30,7 @@ static void s_timer_start(void) {
 static void s_timer_stop(void) {
     text_layer_set_text(s_text_layer, s_str);
     if (s_timer != NULL) {
-        snprintf(s_str, STR_LEN, "%s: Stop (turn:%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
+        snprintf(s_str, STR_LEN, "%s:Stop(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
         app_timer_cancel(s_timer);
         s_timer = NULL;
     }
@@ -46,10 +46,10 @@ static void s_timer_callback_babble(void *data) {
     sort_next(s_sort, &is_end);
     if (is_end == true) {
         s_timer_stop();
-        snprintf(s_str, STR_LEN, "%s: Done (turn:%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
+        snprintf(s_str, STR_LEN, "%s:Done(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
     } else {
         s_timer_start();
-        snprintf(s_str, STR_LEN, "%s: Sort (turn:%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
+        snprintf(s_str, STR_LEN, "%s:Sort(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
     }
     text_layer_set_text(s_text_layer, s_str);
     canvas_mark_dirty(s_canvas);
@@ -84,7 +84,7 @@ static void s_menu_select_callback(AlgorithmKind kind) {
         (void)sort_set_algorithm(s_sort, NULL);
         (void)sort_set_algorithm(s_sort, algorithm);
         (void)sort_init(s_sort,  SO_DescendingOrder);
-        snprintf(s_str, STR_LEN, "%s: Init (num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
+        snprintf(s_str, STR_LEN, "%s:Init(num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
     }
     canvas_mark_dirty(s_canvas);
 }
@@ -96,7 +96,7 @@ static void s_select_long_click_handler(ClickRecognizerRef recognizer, void *con
 
 static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     s_timer_stop();
-    snprintf(s_str, STR_LEN, "%s: Init (num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
+    snprintf(s_str, STR_LEN, "%s:Init(num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
     text_layer_set_text(s_text_layer, s_str);
     (void)sort_init(s_sort, SO_Random);
     canvas_mark_dirty(s_canvas);
@@ -108,9 +108,9 @@ static void s_down_click_handler(ClickRecognizerRef recognizer, void *context) {
     s_timer_stop();
     sort_next(s_sort, &is_end);
     if (is_end == true) {
-        snprintf(s_str, STR_LEN, "%s: Done (turn:%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
+        snprintf(s_str, STR_LEN, "%s:Done(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
     } else {
-        snprintf(s_str, STR_LEN, "%s: Sort (turn:%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
+        snprintf(s_str, STR_LEN, "%s:Sort(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
     }
     text_layer_set_text(s_text_layer, s_str);
     canvas_mark_dirty(s_canvas);
