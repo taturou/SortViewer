@@ -73,7 +73,6 @@ static void s_close(void *ctx, SortData *data) {
 }
 
 static void s_next(void *ctx, SortData *data, bool *is_end) {
-    int i;
     SortPosition *pos = (SortPosition*)ctx;
     Area *area = &pos->areas[pos->area_index];
     *is_end = false;

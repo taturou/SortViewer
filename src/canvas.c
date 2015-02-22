@@ -13,7 +13,17 @@ Canvas *canvas_create(GRect window_frame, Sort *sort) {
     Canvas *canvas = NULL;
 
     if (sort != NULL) {
-        GRect frame = (GRect){.origin = {0, 20}, .size = {window_frame.size.w, window_frame.size.h - 20}};
+        GRect frame = (GRect){
+            .origin = {
+                window_frame.origin.x + 8,
+                window_frame.origin.y
+            },
+            .size = {
+                sort_get_data(sort)->num_element * 2,
+                window_frame.size.h
+            }
+        };
+
         Layer *layer = layer_create_with_data(frame, sizeof(Canvas));
         if (layer != NULL) {
             canvas = (Canvas*)layer_get_data(layer);
