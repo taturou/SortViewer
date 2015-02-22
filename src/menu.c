@@ -100,7 +100,8 @@ static void s_menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, Men
     };
     const struct basic_cell cells1[NUM_MENU_SECTION1_ROWS] = {
         {"Babble sort", NULL, NULL},
-        {"Merge sort", NULL, NULL}
+        {"Merge sort", NULL, NULL},
+        {"Quick sort", NULL, NULL}
     };
     const struct basic_cell *cells[NUM_MENU_SECTIONS] = {
         cells1

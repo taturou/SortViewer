@@ -74,6 +74,9 @@ static void s_menu_select_callback(AlgorithmKind kind) {
     case MSA_Merge:
         algorithm = &sort_algorithm_merge;
         break;
+    case MSA_Quick:
+        algorithm = &sort_algorithm_quick;
+        break;
     default:
         break;
     }
