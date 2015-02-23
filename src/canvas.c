@@ -24,7 +24,6 @@ typedef struct canvas {
 static void s_layer_update_callback(Layer *layer, GContext *ctx);
 static void s_math_cut_figure2(int num, int figure[2]);
 inline static int s_bmp_calc_index(const GSize *size, int x, int y);
-inline static int s_bmp_calc_bit(const GSize *size, int x, int y);
 inline static uint8_t s_bmp_get(const Bitmap *bmp, int x, int y);
 inline static void s_bmp_set(Bitmap *bmp, int x, int y, uint8_t val);
 static void s_bmp_draw_font(Bitmap *bmp, GPoint offset, const Font *font);
@@ -49,7 +48,7 @@ Canvas *canvas_create(GRect window_frame, Sort *sort) {
             canvas = (Canvas*)layer_get_data(layer);
             canvas->bitmap.size.w = frame.size.w;
             canvas->bitmap.size.h = 7 * FONT_H;
-            canvas->bitmap.data_size = ((canvas->bitmap.size.w * canvas->bitmap.size.h) / 8) + 1;
+            canvas->bitmap.data_size = canvas->bitmap.size.w * canvas->bitmap.size.h;
             canvas->bitmap.data = calloc(canvas->bitmap.data_size, 1);
             if (canvas->bitmap.data != NULL) {
                 canvas->layer = layer;
@@ -178,23 +177,15 @@ static void s_math_cut_figure2(int num, int figure[2]) {
 }
 
 inline static int s_bmp_calc_index(const GSize *size, int x, int y) {
-    return (x + (size->w * y)) / 8;
-}
-
-inline static int s_bmp_calc_bit(const GSize *size, int x, int y) {
-    return (x + (size->w * y)) % 8;
+    return x + (size->w * y);
 }
 
 inline static uint8_t s_bmp_get(const Bitmap *bmp, int x, int y) {
-    return (bmp->data[s_bmp_calc_index(&bmp->size, x, y)] >> s_bmp_calc_bit(&bmp->size, x, y)) & 0x1;
+    return bmp->data[s_bmp_calc_index(&bmp->size, x, y)];
 }
 
 inline static void s_bmp_set(Bitmap *bmp, int x, int y, uint8_t val) {
-    if (val == 1) {
-        bmp->data[s_bmp_calc_index(&bmp->size, x, y)] |= 1 << s_bmp_calc_bit(&bmp->size, x, y);
-    } else {
-        bmp->data[s_bmp_calc_index(&bmp->size, x, y)] &= ~(1 << s_bmp_calc_bit(&bmp->size, x, y));
-    }
+    bmp->data[s_bmp_calc_index(&bmp->size, x, y)] = val;
 }
 
 static void s_bmp_draw_font(Bitmap *bmp, GPoint offset, const Font *font) {
