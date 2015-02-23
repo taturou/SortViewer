@@ -88,6 +88,7 @@ static void s_menu_select_callback(AlgorithmKind kind) {
         (void)sort_set_algorithm(s_sort, NULL);
         (void)sort_set_algorithm(s_sort, algorithm);
         (void)sort_init(s_sort,  SO_DescendingOrder);
+        canvas_set_time(s_canvas);
         snprintf(s_str, STR_LEN, "%s:Init(num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
     }
     canvas_mark_dirty(s_canvas);
@@ -103,6 +104,7 @@ static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     snprintf(s_str, STR_LEN, "%s:Init(num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
     text_layer_set_text(s_text_layer, s_str);
     (void)sort_init(s_sort, SO_Random);
+    canvas_set_time(s_canvas);
     canvas_mark_dirty(s_canvas);
 }
 
@@ -136,8 +138,9 @@ static void s_window_load(Window *window) {
     s_sort = sort_create((SortSettings){.num_element = 64 /*window_frame.size.w / 2*/});
     (void)sort_set_algorithm(s_sort, &sort_algorithm_babble);
     (void)sort_init(s_sort, SO_AscendingOrder);
-    
+
     s_canvas = canvas_create((GRect){.origin = {0, 20}, .size = {window_frame.size.w, window_frame.size.h - 20}}, s_sort);
+    canvas_set_time(s_canvas);
     layer_add_child(window_layer, canvas_get_layer(s_canvas));
 
     s_text_layer = text_layer_create((GRect){.origin={0, 0}, .size={window_frame.size.w, 20}});

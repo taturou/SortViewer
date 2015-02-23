@@ -160,13 +160,10 @@ static void s_draw(void *ctx, SortData *data, GContext *gctx) {
     graphics_draw_line(gctx,
                        (GPoint){(pos->div_index * pos->div_size) * 2, 0},
                        (GPoint){(pos->div_index * pos->div_size + pos->div_size * 2) * 2, 0});
-    graphics_draw_line(gctx,
-                       (GPoint){(pos->l_index) * 2, 2},
+    graphics_draw_pixel(gctx,
                        (GPoint){(pos->l_index) * 2, 2});
-    graphics_draw_line(gctx,
-                       (GPoint){(pos->r_index) * 2, 2},
+    graphics_draw_pixel(gctx,
                        (GPoint){(pos->r_index) * 2, 2});
-    graphics_draw_line(gctx,
-                       (GPoint){(pos->insert_index) * 2, 4},
+    graphics_draw_pixel(gctx,
                        (GPoint){(pos->insert_index) * 2, 4});
 }

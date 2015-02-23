@@ -146,16 +146,13 @@ static void s_draw(void *ctx, SortData *data, GContext *gctx) {
                        (GPoint){(area->start_index) * 2, 0},
                        (GPoint){(area->end_index) * 2, 0});
 
-    graphics_draw_line(gctx,
-                       (GPoint){(area->pivot) * 2, 2},
+    graphics_draw_pixel(gctx,
                        (GPoint){(area->pivot) * 2, 2});
 
-    graphics_draw_line(gctx,
-                       (GPoint){(pos->l_index) * 2, 4},
+    graphics_draw_pixel(gctx,
                        (GPoint){(pos->l_index) * 2, 4});
 
-    graphics_draw_line(gctx,
-                       (GPoint){(pos->r_index) * 2, 4},
+    graphics_draw_pixel(gctx,
                        (GPoint){(pos->r_index) * 2, 4});
 }
 
