@@ -3,7 +3,7 @@
 #include "font.h"
 
 #define FRAME_MARGIN    (8)
-#define BMP_ORIGIN_X    (0)
+#define BMP_ORIGIN_X    (2)
 #define BMP_ORIGIN_Y    (10)
 #define FONT_W          (8)
 #define FONT_H          (10)

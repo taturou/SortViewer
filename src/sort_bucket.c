@@ -35,7 +35,7 @@ static bool s_open(void *ctx, SortData *data) {
     bool ret = false;
     SortPosition *pos = (SortPosition*)ctx;
 
-    pos->tmp_elements = calloc(data->num_element, 1);
+    pos->tmp_elements = calloc(data->num_element, sizeof(uint8_t));
     if (pos->tmp_elements != NULL) {
         memcpy(pos->tmp_elements, data->elements, data->num_element);
         pos->index = 0;
@@ -48,8 +48,11 @@ static void s_close(void *ctx, SortData *data) {
     (void)data;
     SortPosition *pos = (SortPosition*)ctx;
     
-    free(pos->tmp_elements);
-    pos->tmp_elements = NULL;
+    if (pos->tmp_elements != NULL) {
+        free(pos->tmp_elements);
+        pos->tmp_elements = NULL;
+        pos->index = 0;
+    }
 }
 
 static void s_next(void *ctx, SortData *data, bool *is_end) {
@@ -66,7 +69,9 @@ static void s_next(void *ctx, SortData *data, bool *is_end) {
 }
 
 static void s_draw(void *ctx, SortData *data, GContext *gctx) {
-    (void)ctx;
     (void)data;
-    (void)gctx;
+    SortPosition *pos = (SortPosition*)ctx;
+    
+    graphics_draw_pixel(gctx,
+                       (GPoint){(pos->index) * 2, 0});
 }

@@ -43,7 +43,7 @@ static bool s_open(void *ctx, SortData *data) {
     bool ret = false;
     SortPosition *pos = (SortPosition*)ctx;
 
-    pos->tmp_elements = calloc(data->num_element, 1);
+    pos->tmp_elements = calloc(data->num_element, sizeof(uint8_t));
     if (pos->tmp_elements != NULL) {
         memcpy(pos->tmp_elements, data->elements, data->num_element);
     
@@ -155,6 +155,7 @@ static void s_next(void *ctx, SortData *data, bool *is_end) {
 }
 
 static void s_draw(void *ctx, SortData *data, GContext *gctx) {
+    (void)data;
     SortPosition *pos = (SortPosition*)ctx;
     
     graphics_draw_line(gctx,

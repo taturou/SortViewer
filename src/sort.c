@@ -112,7 +112,7 @@ bool sort_init(Sort *sort, SortOrder order) {
         switch (order) {
         case SO_AscendingOrder:
             for (int i = 1; i <= data->num_element; i++) {
-                data->elements[i] = i;
+                data->elements[i - 1] = i;
             }
             break;
         case SO_DescendingOrder:

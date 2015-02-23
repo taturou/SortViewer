@@ -12,6 +12,7 @@ static Menu *s_menu;
 static TextLayer *s_text_layer;
 static Canvas *s_canvas;
 static Sort *s_sort;
+static SortOrder s_sort_order;
 
 #define STR_LEN           (64)
 static char s_str[STR_LEN];
@@ -21,6 +22,7 @@ static AppTimer *s_timer;
 
 #define DELAY_MENU        (500)
 #define DELAY_BUTTON_DOWN (50)
+#define DELAY_END_OF_SORT (3000)
 
 static void s_timer_callback_babble(void *data);
 
@@ -43,14 +45,34 @@ static bool s_timer_running(void) {
 
 static void s_timer_callback_babble(void *data) {
     bool is_end = true;
+
+    if (data == NULL) {
+        sort_next(s_sort, &is_end);
+        if (is_end == true) {
+            snprintf(s_str, STR_LEN, "%s:Done(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
     
-    sort_next(s_sort, &is_end);
-    if (is_end == true) {
-        s_timer_stop();
-        snprintf(s_str, STR_LEN, "%s:Done(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
+            switch (s_sort_order) {
+            case SO_AscendingOrder:
+                s_timer_stop();
+                break;
+            case SO_DescendingOrder:
+                s_timer_stop();
+                break;
+            case SO_Random:
+                s_timer = app_timer_register(DELAY_END_OF_SORT, s_timer_callback_babble, &s_sort_order/* dummy pointer */);
+                break;
+            default:
+                s_timer_stop();
+                break;
+            }
+        } else {
+            s_timer_start();
+            snprintf(s_str, STR_LEN, "%s:Sort(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
+        }
     } else {
+        (void)sort_init(s_sort, SO_Random);
+        canvas_set_time(s_canvas);
         s_timer_start();
-        snprintf(s_str, STR_LEN, "%s:Sort(#%d)", sort_get_algorithm_name(s_sort), sort_num_turn(s_sort));
     }
     text_layer_set_text(s_text_layer, s_str);
     canvas_mark_dirty(s_canvas);
@@ -87,7 +109,8 @@ static void s_menu_select_callback(AlgorithmKind kind) {
     if (algorithm != NULL) {
         (void)sort_set_algorithm(s_sort, NULL);
         (void)sort_set_algorithm(s_sort, algorithm);
-        (void)sort_init(s_sort,  SO_DescendingOrder);
+        s_sort_order = SO_DescendingOrder;
+        (void)sort_init(s_sort,  s_sort_order);
         canvas_set_time(s_canvas);
         snprintf(s_str, STR_LEN, "%s:Init(num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
     }
@@ -103,7 +126,23 @@ static void s_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     s_timer_stop();
     snprintf(s_str, STR_LEN, "%s:Init(num:%d)", sort_get_algorithm_name(s_sort), sort_num_element(s_sort));
     text_layer_set_text(s_text_layer, s_str);
-    (void)sort_init(s_sort, SO_Random);
+
+    switch (s_sort_order) {
+    case SO_AscendingOrder:
+        s_sort_order = SO_DescendingOrder;
+        break;
+    case SO_DescendingOrder:
+        s_sort_order = SO_Random;
+        break;
+    case SO_Random:
+        s_sort_order = SO_AscendingOrder;
+        break;
+    default:
+        s_sort_order = SO_AscendingOrder;
+        break;
+    }    
+
+    (void)sort_init(s_sort, s_sort_order);
     canvas_set_time(s_canvas);
     canvas_mark_dirty(s_canvas);
 }
@@ -137,7 +176,7 @@ static void s_window_load(Window *window) {
     
     s_sort = sort_create((SortSettings){.num_element = 64 /*window_frame.size.w / 2*/});
     (void)sort_set_algorithm(s_sort, &sort_algorithm_babble);
-    (void)sort_init(s_sort, SO_AscendingOrder);
+    (void)sort_init(s_sort, s_sort_order);
 
     s_canvas = canvas_create((GRect){.origin = {0, 20}, .size = {window_frame.size.w, window_frame.size.h - 20}}, s_sort);
     canvas_set_time(s_canvas);
@@ -169,6 +208,7 @@ static void s_init(void) {
     s_text_layer = NULL;
     s_canvas = NULL;
     s_sort = NULL;
+    s_sort_order = SO_AscendingOrder;
     s_timer = NULL;
 
     s_window = window_create();
