@@ -2,6 +2,7 @@
 #include "canvas.h"
 #include "font.h"
 
+#define FRAME_MARGIN    (8)
 #define BMP_ORIGIN_X    (0)
 #define BMP_ORIGIN_Y    (10)
 #define FONT_W          (8)
@@ -34,12 +35,12 @@ Canvas *canvas_create(GRect window_frame, Sort *sort) {
     if (sort != NULL) {
         GRect frame = (GRect){
             .origin = {
-                window_frame.origin.x + 8,
+                window_frame.origin.x + FRAME_MARGIN,
                 window_frame.origin.y
             },
             .size = {
                 sort_get_data(sort)->num_element * 2,
-                window_frame.size.h
+                window_frame.size.h - FRAME_MARGIN
             }
         };
 
@@ -94,30 +95,21 @@ void canvas_set_time(Canvas *canvas) {
     s_math_cut_figure2(ltim->tm_hour, hour);
     s_math_cut_figure2(ltim->tm_min, min);
 
-//     // frame
-//     for (int y = 0; y < bmp->size.h; y++) {
-//         s_bmp_set(bmp, 0, y, 1);
-//         s_bmp_set(bmp, bmp->size.w - 1, y, 1);
-//     }
-//     for (int x = 0; x < bmp->size.w; x++) {
-//         s_bmp_set(bmp, x, 0, 1);
-//         s_bmp_set(bmp, x, bmp->size.h - 1, 1);
-//     }
-
+    // draw time
     GPoint origin = {.x = FONT_W, .y = FONT_H};
 
-    // HH
+    // draw time: HH
     origin.x = 0;
     s_bmp_draw_font(bmp, origin, &font_number[hour[1]]);
 
     origin.x += (font_number[hour[1]].size.w * FONT_W) + FONT_SPACE_W;
     s_bmp_draw_font(bmp, origin, &font_number[hour[0]]);
     
-    // :
+    // draw time: :(colon)
     origin.x += (font_number[hour[0]].size.w * FONT_W) + FONT_SPACE_W;
     s_bmp_draw_font(bmp, origin, &font_colon);
     
-    // MM
+    // draw time: MM
     origin.x += (font_colon.size.w * FONT_W) + FONT_SPACE_W;
     s_bmp_draw_font(bmp, origin, &font_number[min[1]]);
 
@@ -135,6 +127,7 @@ static void s_layer_update_callback(Layer *layer, GContext *ctx) {
 
     for (int i = 0; i < data->num_element; i++) {
         // draw elements
+#if 0        
         graphics_draw_line(ctx, 
                            (GPoint){
                                i * 2,
@@ -142,9 +135,27 @@ static void s_layer_update_callback(Layer *layer, GContext *ctx) {
                            },
                            (GPoint){
                                i * 2,
-                               canvas->window_frame.size.h - (data->elements[i] * 1)
+                               canvas->window_frame.size.h - data->elements[i]
                            });
-
+#else
+        graphics_draw_line(ctx, 
+                           (GPoint){
+                               i * 2,
+                               canvas->window_frame.size.h
+                           },
+                           (GPoint){
+                               i * 2,
+                               canvas->window_frame.size.h - data->num_element
+                           });
+        graphics_context_set_stroke_color(ctx, GColorWhite);
+        graphics_draw_pixel(ctx,
+                            (GPoint){
+                                i * 2,
+                                canvas->window_frame.size.h - data->elements[i]
+                            });
+        graphics_context_set_stroke_color(ctx, GColorBlack);
+#endif
+        
         // draw clock
         int x = i;
         GPoint p = (GPoint){BMP_ORIGIN_X, BMP_ORIGIN_Y};
@@ -152,20 +163,13 @@ static void s_layer_update_callback(Layer *layer, GContext *ctx) {
             if (s_bmp_get(bmp, ((data->elements[i] - 1) * 2) + 0, y) == 1) {
                 graphics_draw_pixel(ctx, (GPoint){p.x + (x * 2) + 0, p.y + y});
             }
+#if 0
             if (s_bmp_get(bmp, ((data->elements[i] - 1) * 2) + 1, y) == 1) {
                 graphics_draw_pixel(ctx, (GPoint){p.x + (x * 2) + 1, p.y + y});
             }
+#endif
         }
     }
-
-//     GPoint p = (GPoint){BMP_ORIGIN_X, BMP_ORIGIN_Y};
-//     for (int y = 0; y < bmp->size.h; y++) {
-//         for (int x = 0; x < bmp->size.w; x++) {
-//             if (s_bmp_get(bmp, x, y) == 1) {
-//                 graphics_draw_pixel(ctx, (GPoint){p.x + x, p.y + y});
-//             }
-//         }
-//     }
     
     // draw algorithm specified graphic
     sort_draw(sort, ctx);
